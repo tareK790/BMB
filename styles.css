@@ -8,7 +8,7 @@ body {
     padding: 32px 20px 110px;
     color: #233344;
     font-family: Inter, "Segoe UI", Arial, sans-serif;
-    background-image: url("../image/BG.jpg");
+    background-image: url("BG.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
