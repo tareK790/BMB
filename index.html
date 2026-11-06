@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMB-stock</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="javasc/database.js" defer></script>
+    <script src="javasc/app.js" defer></script>
+</head>
+<body>
+    <section class="client-section">
+        <header class="page-header">
+            <h1 class="client-title">Gestion des clients</h1>
+            <div class="debt-summary" aria-live="polite">
+                <span>Dettes totales</span>
+                <strong id="totalDebt">0 DA</strong>
+            </div>
+        </header>
+
+        <div class="client-toolbar">
+            <input type="search" id="searchInput" placeholder="Rechercher un client..." aria-label="Rechercher un client">
+            <label class="sort-control" for="sortClients">Trier par dette
+                <select id="sortClients">
+                    <option value="desc">Plus élevée d’abord</option>
+                    <option value="asc">Plus faible d’abord</option>
+                </select>
+            </label>
+        </div>
+        <div class="client-list" id="clientList" aria-live="polite"></div>
+    </section>
+
+    <button class="btn-add" id="addClientBtn" type="button" aria-label="Ajouter un client">+</button>
+    <dialog id="addClientDialog" class="app-dialog">
+        <h2>Ajouter un client</h2>
+        <form id="addClientForm">
+            <input type="text" id="clientName" placeholder="Nom du client" autocomplete="name" required>
+            <input type="tel" id="clientPhone" placeholder="Numéro de téléphone" autocomplete="tel">
+            <button type="submit">Ajouter le client</button>
+            <button type="button" id="cancelBtn" class="cancel-button">Annuler</button>
+        </form>
+    </dialog>
+
+    <dialog id="clientProfileDialog" class="app-dialog profile-dialog">
+        <button type="button" class="dialog-close" id="closeProfileBtn" aria-label="Fermer le profil">&times;</button>
+        <h2 id="profileName"></h2>
+        <p class="profile-phone" id="profilePhone"></p>
+        <div class="profile-debt">
+            <span>Dette restante</span>
+            <strong id="profileDebt"></strong>
+        </div>
+        <div class="transaction-actions">
+            <form id="purchaseForm" class="transaction-form">
+                <h3>Enregistrer un achat</h3>
+                <label for="purchaseAmount">Montant (DA)</label>
+                <input type="number" id="purchaseAmount" min="0.01" step="0.01" placeholder="Montant en DA" required>
+                <button type="submit">Ajouter à la dette</button>
+            </form>
+            <form id="paymentForm" class="transaction-form">
+                <h3>Enregistrer un paiement</h3>
+                <label for="paymentAmount">Montant (DA)</label>
+                <input type="number" id="paymentAmount" min="0.01" step="0.01" placeholder="Montant en DA" required>
+                <button type="submit" class="payment-button">Déduire de la dette</button>
+            </form>
+        </div>
+    </dialog>
+</body>
+</html>
