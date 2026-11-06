@@ -147,3 +147,11 @@ purchaseForm.addEventListener("submit", (event) => submitTransaction(event, "pur
 paymentForm.addEventListener("submit", (event) => submitTransaction(event, "payment", "paymentAmount"));
 
 refreshClients().catch(showError);
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").catch((error) => {
+      console.error("Impossible d’enregistrer le service worker.", error);
+    });
+  });
+}
