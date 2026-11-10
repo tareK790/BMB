@@ -265,6 +265,7 @@ body {
 }
 
 #addClientForm,
+#editClientForm,
 .transaction-form {
     display: flex;
     flex-direction: column;
@@ -312,6 +313,21 @@ body {
 
 .profile-dialog {
     width: min(620px, calc(100% - 32px));
+}
+
+.profile-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.profile-actions button {
+    flex: 1;
+}
+
+.app-dialog .delete-button {
+    background: linear-gradient(115deg, #ed536d, #b92b54) !important;
+    box-shadow: 0 8px 22px rgba(185, 43, 84, 0.25) !important;
 }
 
 .dialog-close {
@@ -364,14 +380,10 @@ body {
     color: #54e0b5;
 }
 
-.transaction-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-}
-
 .transaction-form {
-    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
     padding: 15px;
     border: 1px solid rgba(140, 157, 255, 0.2);
     border-radius: 16px;
@@ -390,9 +402,15 @@ body {
     font-size: 0.85rem;
 }
 
-.app-dialog .transaction-form .payment-button {
-    background: linear-gradient(115deg, #30c8ff 0%, #526bff 52%, #a24cff 100%);
-    box-shadow: 0 8px 22px rgba(73, 92, 255, 0.25), 0 0 18px rgba(48, 174, 255, 0.13);
+.transaction-form select {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 14px;
+    border: 1px solid rgba(148, 160, 255, 0.2);
+    border-radius: 12px;
+    color: #f0edff;
+    background: rgba(5, 8, 20, 0.72);
+    font: inherit;
 }
 
 @media (max-width: 600px) {
@@ -440,6 +458,10 @@ body {
 
     .app-dialog {
         padding: 24px 18px;
+    }
+
+    .profile-actions {
+        flex-direction: column;
     }
 
     .transaction-actions {

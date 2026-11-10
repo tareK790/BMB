@@ -1,4 +1,4 @@
-const CACHE_NAME = "bmb-stock-v1";
+const CACHE_NAME = "bmb-stock-v2";
 const APP_SHELL = [
   "./",
   "./index.html",

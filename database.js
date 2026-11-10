@@ -79,6 +79,81 @@ async function addClient(client) {
   });
 }
 
+async function updateClient(clientId, updates) {
+  const name = updates.name.trim();
+  const phone = updates.phone.trim();
+  if (!name) {
+    throw new Error("Le nom du client est obligatoire.");
+  }
+
+  const database = await openClientDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction(CLIENT_STORE_NAME, "readwrite");
+    const store = transaction.objectStore(CLIENT_STORE_NAME);
+    const request = store.get(clientId);
+    let failure;
+
+    request.onsuccess = () => {
+      const client = request.result;
+      if (!client) {
+        failure = new Error("Le profil sélectionné n’existe plus.");
+        transaction.abort();
+        return;
+      }
+
+      client.name = name;
+      client.phone = phone;
+      store.put(client);
+    };
+
+    transaction.oncomplete = () => {
+      database.close();
+      resolve();
+    };
+    transaction.onerror = () => {
+      database.close();
+      reject(transaction.error ?? new Error("Impossible de modifier le profil."));
+    };
+    transaction.onabort = () => {
+      database.close();
+      reject(failure ?? transaction.error ?? new Error("La modification du profil a été interrompue."));
+    };
+  });
+}
+
+async function deleteClient(clientId) {
+  const database = await openClientDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction(CLIENT_STORE_NAME, "readwrite");
+    const store = transaction.objectStore(CLIENT_STORE_NAME);
+    const request = store.get(clientId);
+    let failure;
+
+    request.onsuccess = () => {
+      if (!request.result) {
+        failure = new Error("Le profil sélectionné n’existe plus.");
+        transaction.abort();
+        return;
+      }
+
+      store.delete(clientId);
+    };
+
+    transaction.oncomplete = () => {
+      database.close();
+      resolve();
+    };
+    transaction.onerror = () => {
+      database.close();
+      reject(transaction.error ?? new Error("Impossible de supprimer le profil."));
+    };
+    transaction.onabort = () => {
+      database.close();
+      reject(failure ?? transaction.error ?? new Error("La suppression du profil a été interrompue."));
+    };
+  });
+}
+
 async function recordClientTransaction(clientId, type, amount) {
   if (!["purchase", "payment"].includes(type) || !Number.isFinite(amount) || amount <= 0) {
     throw new Error("La transaction saisie est invalide.");

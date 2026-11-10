@@ -6,8 +6,11 @@ const searchInput = document.getElementById("searchInput");
 const sortSelect = document.getElementById("sortClients");
 const totalDebt = document.getElementById("totalDebt");
 const profileDialog = document.getElementById("clientProfileDialog");
-const purchaseForm = document.getElementById("purchaseForm");
-const paymentForm = document.getElementById("paymentForm");
+const transactionForm = document.getElementById("transactionForm");
+const transactionType = document.getElementById("transactionType");
+const transactionAmount = document.getElementById("transactionAmount");
+const editDialog = document.getElementById("editClientDialog");
+const editForm = document.getElementById("editClientForm");
 const amountFormatter = new Intl.NumberFormat("fr-FR", {
   minimumFractionDigits: 0,
   maximumFractionDigits: 2
@@ -84,10 +87,17 @@ function openProfile(clientId) {
   const profileDebt = document.getElementById("profileDebt");
   profileDebt.textContent = formatAmount(client.debt);
   profileDebt.className = client.debt > 0 ? "debt-value has-debt-text" : "debt-value debt-clear-text";
-  document.getElementById("paymentAmount").max = String(client.debt);
-  purchaseForm.reset();
-  paymentForm.reset();
+  transactionForm.reset();
+  updateTransactionLimit(client);
   profileDialog.showModal();
+}
+
+function updateTransactionLimit(client) {
+  if (transactionType.value === "payment") {
+    transactionAmount.max = String(client.debt);
+  } else {
+    transactionAmount.removeAttribute("max");
+  }
 }
 
 async function refreshClients() {
@@ -103,6 +113,30 @@ addButton.addEventListener("click", () => addDialog.showModal());
 
 document.getElementById("cancelBtn").addEventListener("click", () => addDialog.close());
 document.getElementById("closeProfileBtn").addEventListener("click", () => profileDialog.close());
+document.getElementById("editClientBtn").addEventListener("click", () => {
+  const client = clients.find((item) => item.id === activeClientId);
+  if (!client) return;
+
+  document.getElementById("editClientName").value = client.name;
+  document.getElementById("editClientPhone").value = client.phone;
+  editDialog.showModal();
+});
+document.getElementById("cancelEditBtn").addEventListener("click", () => editDialog.close());
+document.getElementById("deleteClientBtn").addEventListener("click", async () => {
+  if (!activeClientId) return;
+  const confirmed = window.confirm(
+    "Supprimer ce profil ? Cette action effacera aussi sa dette et tout son historique de transactions."
+  );
+  if (!confirmed) return;
+
+  try {
+    await deleteClient(activeClientId);
+    profileDialog.close();
+    await refreshClients();
+  } catch (error) {
+    showError(error);
+  }
+});
 profileDialog.addEventListener("close", () => {
   activeClientId = null;
 });
@@ -126,25 +160,45 @@ addForm.addEventListener("submit", async (event) => {
   }
 });
 
-async function submitTransaction(event, type, inputId) {
+editForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const amountInput = document.getElementById(inputId);
-  const amount = Math.round(Number(amountInput.value) * 100) / 100;
+  if (!activeClientId) return;
+  const name = document.getElementById("editClientName").value.trim();
+  const phone = document.getElementById("editClientPhone").value.trim();
+  if (!name) return;
+
+  try {
+    await updateClient(activeClientId, { name, phone });
+    editForm.reset();
+    editDialog.close();
+    await refreshClients();
+  } catch (error) {
+    showError(error);
+  }
+});
+
+async function submitTransaction(event) {
+  event.preventDefault();
+  const amount = Math.round(Number(transactionAmount.value) * 100) / 100;
   if (!activeClientId || !Number.isFinite(amount) || amount <= 0) {
     showError(new Error("Saisissez un montant valide supérieur à zéro."));
     return;
   }
 
   try {
-    await recordClientTransaction(activeClientId, type, amount);
+    await recordClientTransaction(activeClientId, transactionType.value, amount);
+    profileDialog.close();
     await refreshClients();
   } catch (error) {
     showError(error);
   }
 }
 
-purchaseForm.addEventListener("submit", (event) => submitTransaction(event, "purchase", "purchaseAmount"));
-paymentForm.addEventListener("submit", (event) => submitTransaction(event, "payment", "paymentAmount"));
+transactionType.addEventListener("change", () => {
+  const client = clients.find((item) => item.id === activeClientId);
+  if (client) updateTransactionLimit(client);
+});
+transactionForm.addEventListener("submit", submitTransaction);
 
 refreshClients().catch(showError);
 
